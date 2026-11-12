@@ -160,5 +160,52 @@ def doTTS():
         return jsonify({'results': [{'audio': base64.b64encode(buffer_.getvalue()).decode()}]})
 
 if __name__ == '__main__':
-    WarmUp(model, speakers)
-    app.run(host='0.0.0.0', debug=False, port=ServerPort)
+    import socket
+    
+    class FilteredStderr:
+        def __init__(self, original):
+            self.original = original
+            self.warned = False
+            
+        def write(self, text):
+            if "WARNING: This is a development server" in text:
+                if not self.warned:
+                    YELLOW = "\033[93m"
+                    CYAN = "\033[96m"
+                    GREEN = "\033[92m"
+                    RESET = "\033[0m"
+                    
+                    try:
+                        hostname = socket.gethostname()
+                        local_ip = socket.gethostbyname(hostname)
+                    except:
+                        local_ip = "127.0.0.1"
+                        
+                    self.original.write(f"\n{GREEN} * [VanGuard TTS] Успешный запуск сервера!{RESET}\n")
+                    self.original.write(f"{YELLOW} * [VanGuard TTS] ВНИМАНИЕ: Вы запустили dev-сервер. Для продакшена используйте Gunicorn!{RESET}\n")
+                    self.original.write(f"{CYAN} * [VanGuard TTS] Локальный доступ: http://127.0.0.1:{ServerPort}{RESET}\n")
+                    if local_ip != "127.0.0.1":
+                        self.original.write(f"{CYAN} * [VanGuard TTS] Сетевой доступ:  http://{local_ip}:{ServerPort}{RESET}\n")
+                    self.original.write("\n")
+                    self.warned = True
+                return
+
+            if " * Running on" in text or " * Serving Flask app" in text:
+                return
+                
+            self.original.write(text)
+            
+        def flush(self):
+            self.original.flush()
+            
+        def __getattr__(self, name):
+            return getattr(self.original, name)
+
+    original_stderr = sys.stderr
+    sys.stderr = FilteredStderr(original_stderr)
+
+    try:
+        WarmUp(model, speakers)
+        app.run(host='0.0.0.0', debug=False, port=ServerPort)
+    finally:
+        sys.stderr = original_stderr
