@@ -1,5 +1,6 @@
-import base64, os, io, sys
+import base64, os, io, sys, re
 import torch
+import numpy as np
 import soundfile as sf
 from flask import Flask, request, jsonify, abort, send_from_directory
 from werkzeug.exceptions import HTTPException
@@ -59,6 +60,28 @@ def api_voices():
 def doHEALTH():
     return "OK"
 
+def clean_ssml(ssml_text):
+    return re.sub(r'\s*volume="[^"]*"', '', ssml_text)
+
+def normalize_audio(audio):
+    if isinstance(audio, torch.Tensor):
+        audio_np = audio.detach().cpu().numpy()
+    else:
+        audio_np = np.asarray(audio)
+        
+
+    audio_np = audio_np.astype(np.float32).flatten()
+    
+    if audio_np.size == 0:
+        return audio_np
+        
+    max_val = np.max(np.abs(audio_np))
+    if max_val > 0:
+        audio_np = audio_np / max_val
+        audio_np = np.tanh(audio_np * 5.0)
+        
+    return audio_np
+
 @app.route('/tts', methods=['POST'])
 def doTTS():
     req = request.json
@@ -83,11 +106,23 @@ def doTTS():
 
     speaker, voiceFile = SpeakerPatch(speaker, speakers)
 
-    audio = model.apply_tts(
-        text=req['text'],
-        speaker=speaker,
-        sample_rate=req['sample_rate']
-    )
+    if req.get('ssml', False):
+        cleaned_text = clean_ssml(req['text'])
+        audio = model.apply_tts(
+            ssml_text=cleaned_text,
+            speaker=speaker,
+            sample_rate=req['sample_rate'],
+            voice_path=voiceFile
+        )
+    else:
+        audio = model.apply_tts(
+            text=req['text'],
+            speaker=speaker,
+            sample_rate=req['sample_rate'],
+            voice_path=voiceFile
+        )
+
+    audio = normalize_audio(audio)
 
     with io.BytesIO() as buffer_:
         if req["format"] == "ogg":

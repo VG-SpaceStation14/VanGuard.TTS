@@ -6,3 +6,4 @@ soundfile
 Flask
 pytest
 pytest-mock
+gunicorn
