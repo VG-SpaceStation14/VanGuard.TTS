@@ -1,10 +1,8 @@
-# src/SoundEffects.py
 import subprocess
 import io
 
-# Убедись, что файлы существуют
-RADIO1_PATH = "radio1.wav"
-RADIO2_PATH = "radio2.wav"
+RADIO1_PATH = "assets/radio1.wav"
+RADIO2_PATH = "assets/radio2.wav"
 
 def _run_ffmpeg(cmd, input_data):
     proc = subprocess.Popen(
@@ -23,7 +21,7 @@ def add_echo(input_buffer, output_format='ogg'):
     cmd = [
         'ffmpeg', '-y', '-hide_banner', '-loglevel', 'error',
         '-i', 'pipe:0',
-        '-i', 'announce.wav',
+        '-i', 'assets/announce.wav',
         '-filter_complex',
         '[0] [1] afir=dry=10:wet=10 [reverb]; [0] [reverb] amix=inputs=2:weights=10 1 [out]; [out] volume=4',
         '-f', output_format, 'pipe:1'
@@ -37,7 +35,6 @@ def add_radio_effect(input_buffer, hz=44100, format='ogg'):
     input_buffer.seek(0)
     input_data = input_buffer.read()
 
-    # 1. Фильтрация → PCM (s16le)
     cmd_filter = [
         'ffmpeg', '-y', '-hide_banner', '-loglevel', 'error',
         '-i', 'pipe:0',
@@ -46,14 +43,13 @@ def add_radio_effect(input_buffer, hz=44100, format='ogg'):
         '-ac', '1',
         '-f', 's16le', 'pipe:1'
     ]
-    filtered = _run_ffmpeg(cmd_filter, input_data)  # ← PCM bytes
+    filtered = _run_ffmpeg(cmd_filter, input_data)
 
-    # 2. Смешивание: radio1 + filtered (PCM) + radio2
     cmd_mix = [
         'ffmpeg', '-y', '-hide_banner', '-loglevel', 'error',
-        '-i', RADIO1_PATH,           # [0:a] wav
-        '-f', 's16le', '-ar', str(hz), '-ac', '1', '-i', 'pipe:0',  # [1:a] ← PCM
-        '-i', RADIO2_PATH,           # [2:a] wav
+        '-i', RADIO1_PATH,
+        '-f', 's16le', '-ar', str(hz), '-ac', '1', '-i', 'pipe:0',
+        '-i', RADIO2_PATH,
         '-filter_complex',
         '[0:a][1:a][2:a]concat=n=3:v=0:a=1[outa]',
         '-map', '[outa]',

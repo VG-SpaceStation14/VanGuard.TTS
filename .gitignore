@@ -5,23 +5,19 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+ss14tts_env_py314/
 
-# Модели (скачиваются при первом запуске)
-model.pt
-v5_cis_base_nostress.pt
+# Модели
+models/
+*.pt
 
-# Временные голоса
-voices/tmp/
-
-# Локальные настройки
-.env
-*.log
-
-# Бинарники ffmpeg (не для Linux)
+# Бинарники
 ffmpeg.exe
 ffplay.exe
 ffprobe.exe
 ffmpeg-*.tar.xz
 
-# Скачанные модели Silero
-v5_cis_base_nostress.pt
+# Временные файлы
+voices/tmp/
+*.log
+.env

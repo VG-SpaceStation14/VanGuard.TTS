@@ -18,7 +18,9 @@ device = torch.device(deviceName)
 
 ApiToken = os.environ.get("apitoken", "test")
 
-local_file = 'v5_cis_base_nostress.pt'
+os.makedirs('models', exist_ok=True)
+local_file = 'models/v5_cis_base_nostress.pt'
+
 if not os.path.isfile(local_file):
     print("Start download Silero V5 CIS Base (nostress)")
     torch.hub.download_url_to_file(

@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from ss14tts import model, speakers, add_echo, add_radio_effect, add_robot
 import io
 import soundfile as sf
@@ -17,3 +22,5 @@ buffer_.seek(0)
 buffer_ = add_echo(buffer_, output_format="ogg")
 buffer_ = add_radio_effect(buffer_, 24000, format="ogg")
 buffer_ = add_robot(buffer_, 24000, format="ogg")
+
+print("Тест эффектов успешно завершен!")
