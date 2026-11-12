@@ -11,7 +11,7 @@ from werkzeug.exceptions import HTTPException
 
 from src.SpeakerPatch import SpeakerPatch, GetAllSpeakers
 from src.WarmUp import WarmUp
-from src.SoundEffects import add_echo, add_radio_effect, add_robot
+from src.SoundEffects import add_echo, add_radio_effect, add_robot, _run_ffmpeg
 
 current_directory = os.path.abspath(os.path.dirname(__file__))
 bin_directory = os.path.join(current_directory, 'bin')
@@ -73,18 +73,30 @@ def normalize_audio(audio):
         audio_np = audio.detach().cpu().numpy()
     else:
         audio_np = np.asarray(audio)
-        
+
     audio_np = audio_np.astype(np.float32).flatten()
-    
     if audio_np.size == 0:
         return audio_np
-        
-    max_val = np.max(np.abs(audio_np))
-    if max_val > 0:
-        audio_np = audio_np / max_val
-        audio_np = np.tanh(audio_np * 5.0)
-        
+
+    peak = np.max(np.abs(audio_np))
+    if peak > 0:
+        audio_np = audio_np / peak * 0.95
     return audio_np
+
+def apply_loudnorm(input_buffer, sample_rate=24000, output_format='ogg'):
+    input_buffer.seek(0)
+    cmd = [
+        'ffmpeg', '-y', '-hide_banner', '-loglevel', 'error',
+        '-i', 'pipe:0',
+        '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11',
+        '-ar', str(sample_rate),
+        '-ac', '1',
+        '-f', output_format, 'pipe:1'
+    ]
+    out = _run_ffmpeg(cmd, input_buffer.read())
+    result = io.BytesIO(out)
+    result.seek(0)
+    return result
 
 @app.route('/tts', methods=['POST'])
 def doTTS():
@@ -142,6 +154,8 @@ def doTTS():
             buffer_ = add_radio_effect(buffer_, req['sample_rate'], format=req["format"])
         elif effect == "Robot":
             buffer_ = add_robot(buffer_, req['sample_rate'], format=req["format"])
+
+        buffer_ = apply_loudnorm(buffer_, req['sample_rate'], req["format"])
 
         return jsonify({'results': [{'audio': base64.b64encode(buffer_.getvalue()).decode()}]})
 
