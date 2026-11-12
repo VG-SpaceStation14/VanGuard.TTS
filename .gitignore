@@ -1,3 +1,18 @@
-**/__pycache__/**
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Модели (скачиваются при первом запуске)
 model.pt
-*.pt
+v5_cis_base_nostress.pt
+
+# Временные голоса
+voices/tmp/
+
+# Локальные настройки
+.env
+*.log
