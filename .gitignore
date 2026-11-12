@@ -16,3 +16,12 @@ voices/tmp/
 # Локальные настройки
 .env
 *.log
+
+# Бинарники ffmpeg (не для Linux)
+ffmpeg.exe
+ffplay.exe
+ffprobe.exe
+ffmpeg-*.tar.xz
+
+# Скачанные модели Silero
+v5_cis_base_nostress.pt
