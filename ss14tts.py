@@ -1,4 +1,8 @@
 import base64, os, io, sys, re
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import torch
 import numpy as np
 import soundfile as sf
@@ -14,11 +18,12 @@ bin_directory = os.path.join(current_directory, 'bin')
 os.environ['PATH'] = f"{bin_directory}:{os.environ['PATH']}"
 sys.path.append(bin_directory)
 
-torch.set_num_threads(int(os.environ.get("threads", "6")))
+torch.set_num_threads(int(os.environ.get("THREADS", os.environ.get("threads", "6"))))
 deviceName = "cuda" if torch.cuda.is_available() else "cpu"
 device = torch.device(deviceName)
 
-ApiToken = os.environ.get("apitoken", "test")
+ApiToken = os.environ.get("API_TOKEN", os.environ.get("apitoken", "test"))
+ServerPort = int(os.environ.get("PORT", "5000"))
 
 os.makedirs('models', exist_ok=True)
 local_file = 'models/v5_cis_base_nostress.pt'
@@ -69,7 +74,6 @@ def normalize_audio(audio):
     else:
         audio_np = np.asarray(audio)
         
-
     audio_np = audio_np.astype(np.float32).flatten()
     
     if audio_np.size == 0:
@@ -143,4 +147,4 @@ def doTTS():
 
 if __name__ == '__main__':
     WarmUp(model, speakers)
-    app.run(host='0.0.0.0', debug=False, port=int(os.environ.get("PORT", "5000")))
+    app.run(host='0.0.0.0', debug=False, port=ServerPort)

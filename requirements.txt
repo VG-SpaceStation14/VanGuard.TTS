@@ -7,3 +7,4 @@ Flask
 pytest
 pytest-mock
 gunicorn
+python-dotenv
