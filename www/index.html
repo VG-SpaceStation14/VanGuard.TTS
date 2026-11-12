@@ -188,6 +188,9 @@
                 'thorsten': 'Thorsten (м)',
                 'lena': 'Лена (ж)'
             };
+            if (voice.startsWith('ru_')) {
+                return voice.substring(3) + ' (ru)';
+            }
             return names[voice] || voice;
         }
         

@@ -1,62 +1,71 @@
 - type: ttsVoice
-  id: Aidar
-  name: tts-voice-name-aidar
-  sex: Male
-  speaker: aidar
-
-- type: ttsVoice
-  id: Baya
-  name: tts-voice-name-baya
-  sex: Unsexed
-  speaker: baya
-
-- type: ttsVoice
-  id: Kseniya
-  name: tts-voice-name-kseniya
+  id: RuAigul
+  name: tts-voice-name-aigul
   sex: Female
-  speaker: kseniya
+  speaker: ru_aigul
 
 - type: ttsVoice
-  id: Xenia
-  name: tts-voice-name-xenia
-  sex: Female
-  speaker: xenia
-
-- type: ttsVoice
-  id: Eugene
-  name: tts-voice-name-eugene
+  id: RuAlexandr
+  name: tts-voice-name-alexandr
   sex: Male
-  speaker: eugene
+  speaker: ru_alexandr
 
 - type: ttsVoice
-  id: Garithos
-  name: tts-voice-name-garithos
-  sex: Male
-  speaker: garithos
-  roundStart: false
-
-- type: ttsVoice
-  id: Maiev
-  name: tts-voice-name-maiev
+  id: RuAlbina
+  name: tts-voice-name-albina
   sex: Female
-  speaker: maiev
-  roundStart: false
+  speaker: ru_albina
 
 - type: ttsVoice
-  id: Myron
-  name: tts-voice-name-myron
-  sex: Unsexed
-  speaker: myron
-  roundStart: false
-
-- type: ttsVoice
-  id: Oleg
-  name: tts-voice-name-oleg
+  id: RuBogdan
+  name: tts-voice-name-bogdan
   sex: Male
-  speaker: oleg
+  speaker: ru_bogdan
 
 - type: ttsVoice
-  id: Zina
-  name: tts-voice-name-zina
+  id: RuDmitriy
+  name: tts-voice-name-dmitriy
+  sex: Male
+  speaker: ru_dmitriy
+
+- type: ttsVoice
+  id: RuEkaterina
+  name: tts-voice-name-ekaterina
   sex: Female
-  speaker: zina
+  speaker: ru_ekaterina
+
+- type: ttsVoice
+  id: RuIgor
+  name: tts-voice-name-igor
+  sex: Male
+  speaker: ru_igor
+
+- type: ttsVoice
+  id: RuKarina
+  name: tts-voice-name-karina
+  sex: Female
+  speaker: ru_karina
+
+- type: ttsVoice
+  id: RuMarat
+  name: tts-voice-name-marat
+  sex: Male
+  speaker: ru_marat
+
+- type: ttsVoice
+  id: RuOksana
+  name: tts-voice-name-oksana
+  sex: Female
+  speaker: ru_oksana
+
+- type: ttsVoice
+  id: RuRoman
+  name: tts-voice-name-roman
+  sex: Male
+  speaker: ru_roman
+
+- type: ttsVoice
+  id: RuZara
+  name: tts-voice-name-zara
+  sex: Female
+  speaker: ru_zara
