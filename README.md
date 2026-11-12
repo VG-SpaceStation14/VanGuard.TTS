@@ -47,7 +47,7 @@
     sudo pacman -S ffmpeg libsndfile
 
 2. Склонируйте репозиторий и перейдите в папку:
-    git clone https://github.com/Ваш-Аккаунт/VanGuard.TTS.git
+    git clone https://github.com/VG-SpaceStation14/VanGuard.TTS.git
     cd VanGuard.TTS
 
 3. Создайте виртуальное окружение и активируйте его:
