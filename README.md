@@ -1,84 +1,100 @@
-# ss14-tts-api
+<p align="center">
+  <img alt="VanGuard SS14" width="350" src="https://raw.githubusercontent.com/VG-SpaceStation14/VanGuardSS14/master/Resources/Textures/_VanGuard/Logo/logo.png" />
+</p>
 
-### сборка своего образа
-```
-docker build . -t ss14-tts-api:latest
-docker run -it -d --name ss14tts -p 5000:5000 ss14-tts-api:latest
-```
+<div align="center">
 
-### запуск в докере
-```
-docker run -it -d --name ss14tts -p 5000:5000 backmen/ss14-tts:latest
-```
+[![Discord](https://img.shields.io/badge/Discord-Наш%20сервер-E05A33?logo=discord&logoColor=white&style=for-the-badge&labelColor=1C1C1C)](https://discord.gg/nW73CdBYkg) 
+[![Сайт](https://img.shields.io/badge/Сайт-Наш%20сайт-E05A33?style=for-the-badge&labelColor=1C1C1C)](https://vanguardproject.ru/index.html)
+[![Main Repo](https://img.shields.io/badge/VanGuard-SS14%20Repo-E05A33?logo=github&logoColor=white&style=for-the-badge&labelColor=1C1C1C)](https://github.com/VG-SpaceStation14/VanGuardSS14) 
+[![Python](https://img.shields.io/badge/Python-3.14+-3776AB?logo=python&logoColor=white&style=for-the-badge&labelColor=1C1C1C)](https://www.python.org/) 
+[![PyTorch](https://img.shields.io/badge/PyTorch-CPU-EE4C2C?logo=pytorch&logoColor=white&style=for-the-badge&labelColor=1C1C1C)](https://pytorch.org/)
 
-### удаление (для обновления)
-```
-docker rm -f ss14tts
-```
+</div>
 
-просмотр логов в докере:
-```
-docker logs ss14tts -f
-```
+---
 
-### запуск без docker
+## 🎙 О проекте
 
-windows: https://www.python.org/ftp/python/3.9.13/python-3.9.13-amd64.exe
+**VanGuard TTS API** — это адаптированный и обновленный TTS-сервер (Text-to-Speech) для проекта [VanGuard](https://github.com/VG-SpaceStation14/VanGuardSS14). 
 
-!!! выше версии 3.9 не работет !!!
+За основу взят оригинальный проект [ss14-tts-api](https://github.com/Rxup/ss14-tts-api). В данной версии мы перешли на новейшую модель **Silero V5 CIS Base (nostress)**, которая поддерживает десятки русских голосов и автоматически расставляет ударения, что позволяет отказаться от использования дополнительных библиотек вроде `StressRNN`.
 
-```
-pip3 install -r ./requirements.txt --extra-index-url https://download.pytorch.org/whl/cu116
-python ss14tts.py
-```
+Сервер позволяет генерировать речь для игровых сущностей, объявлений и интеркома прямо в Space Station 14.
 
-### Прочие
+## ✨ Возможности
 
-конфиг:
+* **Silero V5 CIS Base** — огромный выбор русских голосов (с префиксом `ru_`), а также поддержка других языков CIS.
+* **Автоматические ударения** — модель `nostress` сама расставляет ударения для славянских языков.
+* **Звуковые эффекты** — встроенная обработка звука через FFmpeg: `Echo` (эхо), `Radio` (рация), `Robot` (робот).
+* **Кастомные голоса** — возможность сохранять и использовать собственные `.pt` файлы голосов.
+* **REST API** — простой и понятный интерфейс для интеграции с игровым сервером на C#.
+* **Веб-интерфейс** — встроенная страница-тестер для быстрой проверки голосов и эффектов.
 
-```
-[tts]
-api_url="http://127.0.0.1:5000/tts"
-api_token="test"
-enabled=true
-```
+## 🛠 Архитектура и Стек
 
+* **Язык:** Python 3.14+.
+* **Нейросеть:** PyTorch (CPU-версия), Silero V5 CIS Base (nostress).
+* **Веб-фреймворк:** Flask.
+* **Аудио-движок:** FFmpeg, SoundFile.
+* **Тестирование:** Pytest (с моками для быстрой проверки без загрузки модели).
 
-файл с бесплатными голосами:
-> tts-voices.yml
+## 🚀 Установка и запуск
 
-копирнуть в /Resources/Prototypes/Corvax
+**Требования:** Python 3.14+, FFmpeg, libsndfile (для Linux).
 
-### Скрипт быстрого запуска
+1. Установите системные зависимости (на примере Arch Linux):
+    sudo pacman -S ffmpeg libsndfile
 
-```
-#!/bin/bash
-# Использование готового Docker-образа
-docker_image_name="backmen/ss14-tts:latest"
+2. Склонируйте репозиторий и перейдите в папку:
+    git clone https://github.com/Ваш-Аккаунт/VanGuard.TTS.git
+    cd VanGuard.TTS
 
-# Переменные окружения
-threads=$(nproc)  # Количество ядер процессора
-apitoken="YOUR_API_TOKEN"  # Здесь укажите свой секретный ключ
+3. Создайте виртуальное окружение и активируйте его:
+    python3.14 -m venv .venv
+    source .venv/bin/activate
 
-# Запуск Docker-образа с авто-перезагрузкой и публикацией порта 5000
-container_name="ss14-tts-api-container"
-docker pull "$docker_image_name" >/dev/null 2>&1
-docker stop "$container_name" >/dev/null 2>&1
-docker rm "$container_name" >/dev/null 2>&1
-docker run -d \
-    --name "$container_name" \
-    -p 5000:5000 \
-    --restart always \
-    -e "threads=$threads" \
-    -e "apitoken=$apitoken" \
-    "$docker_image_name"
+4. Установите Python-зависимости (PyTorch скачается в CPU-версии):
+    pip install -r requirements.txt
 
-# Получение внешнего IP-адреса
-external_ip=$(curl -s ifconfig.me)
+5. Запустите сервер:
+    python ss14tts.py
 
-# Вывод конфигурационных параметров
-echo "[tts]"
-echo "api_url=\"http://$external_ip:5000/tts\""
-echo "api_token=\"$apitoken\""
-echo "enabled=true"
-```
+При первом запуске автоматически скачается модель `v5_cis_base_nostress.pt` (около 90 МБ) и выполнится прогрев голосов.
+
+## ⚙️ Конфигурация
+
+По умолчанию сервер запускается на порту `5000`. Вы можете изменить порт и токен доступа через переменные окружения:
+
+* `PORT` — порт сервера (по умолчанию `5000`).
+* `apitoken` — токен для доступа к API (по умолчанию `test`).
+* `threads` — количество потоков CPU для PyTorch (по умолчанию `6`).
+
+Пример запуска с кастомными настройками:
+    apitoken="SuperSecretToken" PORT=8080 python ss14tts.py
+
+## 🔌 API Эндпоинты
+
+* `GET /health` — проверка работоспособности сервера (возвращает `OK`).
+* `GET /voices` — список всех доступных голосов (включая кастомные `.pt`).
+* `POST /tts` — генерация речи.
+    * Принимает JSON: `text`, `speaker`, `api_token`, `format` (ogg/wav), `effect` (Echo/Radio/Robot).
+    * Возвращает JSON с аудио, закодированным в Base64.
+
+## 🧪 Тестирование
+
+В проекте настроены быстрые тесты, которые не требуют скачивания тяжелой модели. Запуск осуществляется через `pytest`:
+    pytest tests/ -v
+
+Для ручной проверки звуковых эффектов (требуется модель) используйте:
+    python tests/manual_test_effects.py
+
+## 🤝 Контрибьют и Лицензия
+
+**Код — MIT.**
+Оригинальный проект [ss14-tts-api](https://github.com/Rxup/ss14-tts-api) также распространяется под лицензией MIT. Модель Silero TTS предоставляется под собственной лицензией (доступна для некоммерческого использования).
+
+Мы всегда рады Pull Request'ам! Если вы нашли баг или хотите добавить новый эффект, создавайте Issue.
+
+---
+*Разработано для проекта VanGuard. Особая благодарность Rxup за оригинальный API и сообществу Silero за их потрясающие модели.*
