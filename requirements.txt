@@ -1,6 +1,8 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 ipython
 torch
+numpy
 soundfile
 Flask
-jsonify
-git+https://github.com/Desklop/StressRNN
+pytest
+pytest-mock

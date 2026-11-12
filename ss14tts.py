@@ -2,6 +2,7 @@ import base64, os, io, sys
 import torch
 import soundfile as sf
 from flask import Flask, request, jsonify, abort, send_from_directory
+from werkzeug.exceptions import HTTPException
 
 from src.SpeakerPatch import SpeakerPatch, GetAllSpeakers
 from src.WarmUp import WarmUp
@@ -32,6 +33,14 @@ model = torch.package.PackageImporter(local_file).load_pickle("tts_models", "mod
 model.to(device)
 
 app = Flask(__name__, static_folder='www')
+
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+    return jsonify({
+        "error": e.name,
+        "description": e.description
+    }), e.code
+
 speakers = model.speakers
 
 @app.route('/')
