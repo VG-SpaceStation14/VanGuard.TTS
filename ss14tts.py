@@ -80,7 +80,7 @@ def normalize_audio(audio):
 
     peak = np.max(np.abs(audio_np))
     if peak > 0:
-        audio_np = audio_np / peak * 0.95
+        audio_np = audio_np / peak * 5.0
     return audio_np
 
 def apply_loudnorm(input_buffer, sample_rate=24000, output_format='ogg'):
