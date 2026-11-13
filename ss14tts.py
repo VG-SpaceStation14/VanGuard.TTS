@@ -1,5 +1,9 @@
 import base64, os, io, sys, re
+import xml.etree.ElementTree as ET
+import warnings
 from dotenv import load_dotenv
+
+warnings.filterwarnings("ignore", category=SyntaxWarning)
 
 load_dotenv()
 
@@ -69,7 +73,6 @@ def static_files(path):
 @app.route('/voices')
 def api_voices():
     base_voices = GetAllSpeakers(speakers)
-    # VG-Tweak: GetAllSpeakers возвращает строки, set() здесь безопасен
     all_voices = list(set(base_voices + list(SYNTHETIC_VOICES.keys())))
     return jsonify(sorted(all_voices))
 
@@ -78,7 +81,56 @@ def doHEALTH():
     return "OK"
 
 def clean_ssml(ssml_text):
-    return re.sub(r'\s*volume="[^"]*"', '', ssml_text)
+    try:
+        if not ssml_text.strip().startswith("<speak>"):
+            ssml_text = f"<speak>{ssml_text}</speak>"
+            
+        root = ET.fromstring(ssml_text)
+
+        def flatten_ssml(node, current_rate="medium", current_pitch="medium"):
+            if 'rate' in node.attrib:
+                current_rate = node.attrib['rate']
+                
+            if 'pitch' in node.attrib:
+                p = node.attrib['pitch']
+                if p.startswith('+'):
+                    current_pitch = 'high'
+                elif p.startswith('-'):
+                    current_pitch = 'low'
+                elif p.endswith('%'):
+                    current_pitch = 'high'
+                else:
+                    current_pitch = p
+
+            if node.tag == 'break':
+                yield f'<break time="{node.attrib.get("time", "400ms")}"/>'
+                return
+
+            if node.text and node.text.strip():
+                text = node.text.strip()
+                if current_rate != "medium" or current_pitch != "medium":
+                    yield f'<prosody rate="{current_rate}" pitch="{current_pitch}">{text}</prosody>'
+                else:
+                    yield text
+
+            for child in node:
+                yield from flatten_ssml(child, current_rate, current_pitch)
+                
+                if child.tail and child.tail.strip():
+                    tail_text = child.tail.strip()
+                    if current_rate != "medium" or current_pitch != "medium":
+                        yield f'<prosody rate="{current_rate}" pitch="{current_pitch}">{tail_text}</prosody>'
+                    else:
+                        yield tail_text
+
+        flat_parts = list(flatten_ssml(root))
+        result = f"<speak>{''.join(flat_parts)}</speak>"
+        
+        return re.sub(r'\s+', ' ', result).strip()
+        
+    except Exception as e:
+        print(f"SSML parse error: {e}")
+        return re.sub(r'\s*volume="[^"]*"', '', ssml_text)
 
 def normalize_audio(audio):
     if isinstance(audio, torch.Tensor):
