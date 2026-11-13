@@ -11,7 +11,7 @@ from werkzeug.exceptions import HTTPException
 
 from src.SpeakerPatch import SpeakerPatch, GetAllSpeakers
 from src.WarmUp import WarmUp
-from src.SoundEffects import add_echo, add_radio_effect, add_robot
+from src.SoundEffects import add_echo, add_radio_effect, add_robot, pitch_shift
 
 current_directory = os.path.abspath(os.path.dirname(__file__))
 bin_directory = os.path.join(current_directory, 'bin')
@@ -26,17 +26,26 @@ ApiToken = os.environ.get("API_TOKEN", os.environ.get("apitoken", "test"))
 ServerPort = int(os.environ.get("PORT", "5000"))
 
 os.makedirs('models', exist_ok=True)
-local_file = 'models/v5_cis_base_nostress.pt'
+
+local_file = 'models/v5_6_ru.pt'
 
 if not os.path.isfile(local_file):
-    print("Start download Silero V5 CIS Base (nostress)")
+    print("Start download Silero V5 6 RU (latest Russian model)")
     torch.hub.download_url_to_file(
-        'https://models.silero.ai/models/tts/ru/v5_cis_base_nostress.pt',
+        'https://models.silero.ai/models/tts/ru/v5_6_ru.pt',
         local_file
     )
 
 model = torch.package.PackageImporter(local_file).load_pickle("tts_models", "model")
 model.to(device)
+
+SYNTHETIC_VOICES = {
+    "aidar_deep": ("aidar", 0.94), "aidar_low": ("aidar", 0.97), "aidar": ("aidar", 1.0), "aidar_high": ("aidar", 1.06), "aidar_veryhigh": ("aidar", 1.12),
+    "eugene_deep": ("eugene", 0.94), "eugene_low": ("eugene", 0.97), "eugene": ("eugene", 1.0), "eugene_high": ("eugene", 1.06), "eugene_veryhigh": ("eugene", 1.12),
+    "baya_deep": ("baya", 0.88), "baya_low": ("baya", 0.94), "baya": ("baya", 1.0), "baya_high": ("baya", 1.06), "baya_veryhigh": ("baya", 1.12),
+    "kseniya_deep": ("kseniya", 0.88), "kseniya_low": ("kseniya", 0.94), "kseniya": ("kseniya", 1.0), "kseniya_high": ("kseniya", 1.06), "kseniya_veryhigh": ("kseniya", 1.12),
+    "xenia_deep": ("xenia", 0.88), "xenia_low": ("xenia", 0.94), "xenia": ("xenia", 1.0), "xenia_high": ("xenia", 1.06), "xenia_veryhigh": ("xenia", 1.12),
+}
 
 app = Flask(__name__, static_folder='www')
 
@@ -59,7 +68,10 @@ def static_files(path):
 
 @app.route('/voices')
 def api_voices():
-    return jsonify(GetAllSpeakers(speakers))
+    base_voices = GetAllSpeakers(speakers)
+    # VG-Tweak: GetAllSpeakers возвращает строки, set() здесь безопасен
+    all_voices = list(set(base_voices + list(SYNTHETIC_VOICES.keys())))
+    return jsonify(sorted(all_voices))
 
 @app.route('/health', methods=['GET'])
 def doHEALTH():
@@ -79,71 +91,90 @@ def normalize_audio(audio):
     if audio_np.size == 0:
         return audio_np
         
-    max_val = np.max(np.abs(audio_np))
-    if max_val > 0:
-        audio_np = audio_np / max_val
-        audio_np = np.tanh(audio_np * 5.0)
+    peak = np.max(np.abs(audio_np))
+    if peak > 0:
+        audio_np = audio_np / peak * 0.95 
         
     return audio_np
 
 @app.route('/tts', methods=['POST'])
 def doTTS():
-    req = request.json
-    if 'api_token' not in req:
-        abort(400, description="Missing api_token")
-        return
-    if req['api_token'] != ApiToken:
-        abort(403)
-        return
-    if 'text' not in req:
-        abort(400, description="Missing text")
-        return
-    if 'speaker' not in req:
-        abort(400, description="Missing speaker")
-        return
+    try:
+        req = request.json
+        if 'api_token' not in req or req['api_token'] != ApiToken:
+            abort(403)
+            return
+        if 'text' not in req:
+            abort(400, description="Missing text")
+            return
+        if 'speaker' not in req:
+            abort(400, description="Missing speaker")
+            return
 
-    speaker = req['speaker']
-    if 'sample_rate' not in req:
-        req['sample_rate'] = 24000
-    if 'format' not in req:
-        req['format'] = 'ogg'
+        requested_speaker = req['speaker']
+        if 'sample_rate' not in req:
+            req['sample_rate'] = 24000
+        if 'format' not in req:
+            req['format'] = 'ogg'
 
-    speaker, voiceFile = SpeakerPatch(speaker, speakers)
+        pitch_factor = 1.0
 
-    if req.get('ssml', False):
-        cleaned_text = clean_ssml(req['text'])
-        audio = model.apply_tts(
-            ssml_text=cleaned_text,
-            speaker=speaker,
-            sample_rate=req['sample_rate'],
-            voice_path=voiceFile
-        )
-    else:
-        audio = model.apply_tts(
-            text=req['text'],
-            speaker=speaker,
-            sample_rate=req['sample_rate'],
-            voice_path=voiceFile
-        )
-
-    audio = normalize_audio(audio)
-
-    with io.BytesIO() as buffer_:
-        if req["format"] == "ogg":
-            sf.write(buffer_, audio, req['sample_rate'], format="ogg", subtype="VORBIS")
+        if requested_speaker in SYNTHETIC_VOICES:
+            base_speaker, pitch_factor = SYNTHETIC_VOICES[requested_speaker]
+            speaker = base_speaker
         else:
-            sf.write(buffer_, audio, req['sample_rate'], format=req["format"])
-        buffer_.seek(0)
+            speaker = requested_speaker
 
-        effect = req.get('effect', None)
-        if effect == "Echo":
-            buffer_ = add_echo(buffer_, output_format=req["format"])
-        elif effect == "Radio":
-            buffer_ = add_radio_effect(buffer_, req['sample_rate'], format=req["format"])
-        elif effect == "Robot":
-            buffer_ = add_robot(buffer_, req['sample_rate'], format=req["format"])
+        speaker, voiceFile = SpeakerPatch(speaker, speakers)
 
-        return jsonify({'results': [{'audio': base64.b64encode(buffer_.getvalue()).decode()}]})
+        if req.get('ssml', False):
+            cleaned_text = clean_ssml(req['text'])
+            audio = model.apply_tts(
+                ssml_text=cleaned_text,
+                speaker=speaker,
+                sample_rate=req['sample_rate'],
+                voice_path=voiceFile,
+                put_accent=True,
+                put_yo=True
+            )
+        else:
+            audio = model.apply_tts(
+                text=req['text'],
+                speaker=speaker,
+                sample_rate=req['sample_rate'],
+                voice_path=voiceFile,
+                put_accent=True,
+                put_yo=True
+            )
+
+        audio = normalize_audio(audio)
+
+        with io.BytesIO() as buffer_:
+            if req["format"] == "ogg":
+                sf.write(buffer_, audio, req['sample_rate'], format="ogg", subtype="VORBIS")
+            else:
+                sf.write(buffer_, audio, req['sample_rate'], format=req["format"])
+            buffer_.seek(0)
+
+            if pitch_factor != 1.0:
+                buffer_ = pitch_shift(buffer_, pitch_factor, req['sample_rate'], req["format"])
+
+            effect = req.get('effect', None)
+            if effect == "Echo":
+                buffer_ = add_echo(buffer_, sample_rate=req['sample_rate'], output_format=req["format"])
+            elif effect == "Radio":
+                buffer_ = add_radio_effect(buffer_, req['sample_rate'], format=req["format"])
+            elif effect == "Robot":
+                buffer_ = add_robot(buffer_, req['sample_rate'], format=req["format"])
+
+            return jsonify({'results': [{'audio': base64.b64encode(buffer_.getvalue()).decode()}]})
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Internal Server Error", "description": str(e)}), 500
 
 if __name__ == '__main__':
     import socket

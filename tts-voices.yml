@@ -1,71 +1,149 @@
 - type: ttsVoice
-  id: RuAigul
-  name: tts-voice-name-aigul
-  sex: Female
-  speaker: ru_aigul
-
-- type: ttsVoice
-  id: RuAlexandr
-  name: tts-voice-name-alexandr
+  id: AidarDeep
+  name: tts-voice-name-aidar-deep
   sex: Male
-  speaker: ru_alexandr
+  speaker: aidar_deep
 
 - type: ttsVoice
-  id: RuAlbina
-  name: tts-voice-name-albina
-  sex: Female
-  speaker: ru_albina
-
-- type: ttsVoice
-  id: RuBogdan
-  name: tts-voice-name-bogdan
+  id: AidarLow
+  name: tts-voice-name-aidar-low
   sex: Male
-  speaker: ru_bogdan
+  speaker: aidar_low
 
 - type: ttsVoice
-  id: RuDmitriy
-  name: tts-voice-name-dmitriy
+  id: Aidar
+  name: tts-voice-name-aidar
   sex: Male
-  speaker: ru_dmitriy
+  speaker: aidar
 
 - type: ttsVoice
-  id: RuEkaterina
-  name: tts-voice-name-ekaterina
-  sex: Female
-  speaker: ru_ekaterina
-
-- type: ttsVoice
-  id: RuIgor
-  name: tts-voice-name-igor
+  id: AidarHigh
+  name: tts-voice-name-aidar-high
   sex: Male
-  speaker: ru_igor
+  speaker: aidar_high
 
 - type: ttsVoice
-  id: RuKarina
-  name: tts-voice-name-karina
-  sex: Female
-  speaker: ru_karina
-
-- type: ttsVoice
-  id: RuMarat
-  name: tts-voice-name-marat
+  id: AidarVeryHigh
+  name: tts-voice-name-aidar-veryhigh
   sex: Male
-  speaker: ru_marat
+  speaker: aidar_veryhigh
 
 - type: ttsVoice
-  id: RuOksana
-  name: tts-voice-name-oksana
-  sex: Female
-  speaker: ru_oksana
-
-- type: ttsVoice
-  id: RuRoman
-  name: tts-voice-name-roman
+  id: EugeneDeep
+  name: tts-voice-name-eugene-deep
   sex: Male
-  speaker: ru_roman
+  speaker: eugene_deep
 
 - type: ttsVoice
-  id: RuZara
-  name: tts-voice-name-zara
+  id: EugeneLow
+  name: tts-voice-name-eugene-low
+  sex: Male
+  speaker: eugene_low
+
+- type: ttsVoice
+  id: Eugene
+  name: tts-voice-name-eugene
+  sex: Male
+  speaker: eugene
+
+- type: ttsVoice
+  id: EugeneHigh
+  name: tts-voice-name-eugene-high
+  sex: Male
+  speaker: eugene_high
+
+- type: ttsVoice
+  id: EugeneVeryHigh
+  name: tts-voice-name-eugene-veryhigh
+  sex: Male
+  speaker: eugene_veryhigh
+
+- type: ttsVoice
+  id: BayaDeep
+  name: tts-voice-name-baya-deep
   sex: Female
-  speaker: ru_zara
+  speaker: baya_deep
+
+- type: ttsVoice
+  id: BayaLow
+  name: tts-voice-name-baya-low
+  sex: Female
+  speaker: baya_low
+
+- type: ttsVoice
+  id: Baya
+  name: tts-voice-name-baya
+  sex: Female
+  speaker: baya
+
+- type: ttsVoice
+  id: BayaHigh
+  name: tts-voice-name-baya-high
+  sex: Female
+  speaker: baya_high
+
+- type: ttsVoice
+  id: BayaVeryHigh
+  name: tts-voice-name-baya-veryhigh
+  sex: Female
+  speaker: baya_veryhigh
+
+- type: ttsVoice
+  id: KseniyaDeep
+  name: tts-voice-name-kseniya-deep
+  sex: Female
+  speaker: kseniya_deep
+
+- type: ttsVoice
+  id: KseniyaLow
+  name: tts-voice-name-kseniya-low
+  sex: Female
+  speaker: kseniya_low
+
+- type: ttsVoice
+  id: Kseniya
+  name: tts-voice-name-kseniya
+  sex: Female
+  speaker: kseniya
+
+- type: ttsVoice
+  id: KseniyaHigh
+  name: tts-voice-name-kseniya-high
+  sex: Female
+  speaker: kseniya_high
+
+- type: ttsVoice
+  id: KseniyaVeryHigh
+  name: tts-voice-name-kseniya-veryhigh
+  sex: Female
+  speaker: kseniya_veryhigh
+
+- type: ttsVoice
+  id: XeniaDeep
+  name: tts-voice-name-xenia-deep
+  sex: Female
+  speaker: xenia_deep
+
+- type: ttsVoice
+  id: XeniaLow
+  name: tts-voice-name-xenia-low
+  sex: Female
+  speaker: xenia_low
+
+- type: ttsVoice
+  id: Xenia
+  name: tts-voice-name-xenia
+  sex: Female
+  speaker: xenia
+
+- type: ttsVoice
+  id: XeniaHigh
+  name: tts-voice-name-xenia-high
+  sex: Female
+  speaker: xenia_high
+
+- type: ttsVoice
+  id: XeniaVeryHigh
+  name: tts-voice-name-xenia-veryhigh
+  sex: Female
+  speaker: xenia_veryhigh
