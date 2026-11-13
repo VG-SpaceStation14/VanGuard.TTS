@@ -27,5 +27,6 @@ def SpeakerPatch(speaker, speakers):
         return "random", voiceFile
     if speaker in speakers:
         return speaker, voiceFile
-    default_speaker = next((s for s in speakers if s.startswith('ru_')), 'random')
+        
+    default_speaker = next((s for s in speakers if s != 'random'), 'random')
     return default_speaker, voiceFile
