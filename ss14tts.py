@@ -153,9 +153,14 @@ def normalize_audio(audio):
 def doTTS():
     try:
         req = request.json
-        if 'api_token' not in req or req['api_token'] != ApiToken:
+        
+        if 'api_token' not in req:
+            abort(400, description="Missing api_token")
+            return
+        if req['api_token'] != ApiToken:
             abort(403)
             return
+            
         if 'text' not in req:
             abort(400, description="Missing text")
             return

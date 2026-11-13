@@ -17,21 +17,22 @@ def test_voices(client):
     assert response.status_code == 200
     data = response.get_json()
     assert isinstance(data, list)
-    assert 'ru_aigul' in data
+    assert 'aidar' in data
+    assert 'aidar_deep' in data
 
 def test_tts_no_token(client):
-    response = client.post('/tts', json={"text": "test", "speaker": "ru_aigul"})
+    response = client.post('/tts', json={"text": "test", "speaker": "aidar"})
     assert response.status_code == 400
     assert "Missing api_token" in response.get_json()['description']
 
 def test_tts_bad_token(client):
-    response = client.post('/tts', json={"text": "test", "speaker": "ru_aigul", "api_token": "wrong"})
+    response = client.post('/tts', json={"text": "test", "speaker": "aidar", "api_token": "wrong"})
     assert response.status_code == 403
 
 def test_tts_success(client):
     payload = {
         "text": "Привет",
-        "speaker": "ru_aigul",
+        "speaker": "aidar_deep",
         "api_token": "test",
         "format": "wav"
     }
