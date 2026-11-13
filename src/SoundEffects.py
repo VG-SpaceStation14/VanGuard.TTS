@@ -23,7 +23,7 @@ def add_echo(input_buffer, output_format='ogg'):
         '-i', 'pipe:0',
         '-i', 'assets/announce.wav',
         '-filter_complex',
-        '[0] [1] afir=dry=10:wet=10 [reverb]; [0] [reverb] amix=inputs=2:weights=10 1 [out]',
+        '[0] [1] afir=dry=10:wet=10 [reverb]; [0] [reverb] amix=inputs=2:weights=10 1,volume=2.5,alimiter=limit=0.95 [out]',
         '-f', output_format, 'pipe:1'
     ]
     output = _run_ffmpeg(cmd, input_buffer.read())
@@ -51,7 +51,7 @@ def add_radio_effect(input_buffer, hz=44100, format='ogg'):
         '-f', 's16le', '-ar', str(hz), '-ac', '1', '-i', 'pipe:0',
         '-i', RADIO2_PATH,
         '-filter_complex',
-        '[0:a][1:a][2:a]concat=n=3:v=0:a=1[outa]',
+        '[0:a][1:a][2:a]concat=n=3:v=0:a=1,volume=4.0,alimiter=limit=0.95[outa]',
         '-map', '[outa]',
         '-f', format,
         'pipe:1'
@@ -67,7 +67,7 @@ def add_robot(input_buffer, hz=44100, format='ogg'):
     cmd = [
         'ffmpeg', '-y', '-hide_banner', '-loglevel', 'error',
         '-i', 'pipe:0',
-        '-filter:a', "afftfilt=real='hypot(re,im)*sin(0)':imag='hypot(re,im)*cos(0)':win_size=1024:overlap=0.5",
+        '-filter:a', "afftfilt=real='hypot(re,im)*sin(0)':imag='hypot(re,im)*cos(0)':win_size=1024:overlap=0.5,volume=4.0,alimiter=limit=0.95",
         '-ar', str(hz),
         '-ac', '1',
         '-f', format, 'pipe:1'
